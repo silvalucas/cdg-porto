@@ -1,0 +1,3 @@
+C:/Users/l_oli/Desktop/TrabalhoEDI/cmake-build-debug/CMakeFiles/TrabalhoEDI.dir
+C:/Users/l_oli/Desktop/TrabalhoEDI/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/l_oli/Desktop/TrabalhoEDI/cmake-build-debug/CMakeFiles/rebuild_cache.dir
