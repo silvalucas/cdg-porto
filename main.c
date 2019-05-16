@@ -2,14 +2,12 @@
 #include <stdlib.h>
 #include <time.h>
 
-int unidadeTempo;
+int unidadeTempo, transpTravessa;
 int maxNavio = 300;
-int transpTravessa;
-int quantNavios;
-int quantNaviosDentro;
-int instante1;
-int instante2;
-float mediaEspera;
+int quantNavios, quantNaviosDentro;
+int instantesf1, instantesf2, instantesf3, instantesf4;
+int quant1, quant2, quant3, quant4;
+float media1, media2, media3, media4;
 
 //Data: 30/04/2019
 //Nome: Lucas Oliveira Silva
@@ -48,6 +46,7 @@ typedef struct NO {
 } NO;
 
 typedef struct {
+    int id;
     int tam;
     NO *inicio;
     NO *fim;
@@ -63,8 +62,9 @@ void criaPilhaVazia(Pilha *pilha) {
 }
 
 //Criação de fila com cabeça
-void criaFilaVazia(Fila *fila) {
+void criaFilaVazia(Fila *fila, int x) {
     fila->inicio = malloc(sizeof(NO));
+    fila->id = x;
     fila->fim = fila->inicio;
     fila->fim->proximo = NULL;
     fila->tam = 0;
@@ -148,18 +148,13 @@ int retiraTravessas(Pilha *pilha1, Pilha *pilha2, Pilha *pilha3, Pilha *pilha4, 
 int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3, Pilha *pilha4, Pilha *pilha5) {
     NO *aux = fila->inicio->proximo;
 
-    if (fila->tam == 0) {
-        printf("Fila do atracadouro abaixo esta vazia!");
-        return 0;
+    if (fila->tam > 0) {
+        printf("Descarregando no atracadouro %d...\n", fila->id);
     }
-
-    //Verifica se o navio atual não possui conteiners a serem descarregados.
-    if (aux->navio.quantConteiners == 0) {
-        retiraNavio(fila);
-        return 0;
+    else{
+        printf("Fila %d vazia!\n", fila->id);
+        return 1;
     }
-
-    printf("Descarregando...\n");
 
     while (aux->navio.quantConteiners > 0) {
         int cabem1 = 5 - pilha1->tam;
@@ -219,10 +214,30 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             retiraTravessas(pilha1, pilha2, pilha3, pilha4, pilha5);
         }
     }
-    //Retira o navio atual após o descarregamento
-    if (aux->navio.quantConteiners == 0) {
-        retiraNavio(fila);
+    //Calcula o tempo que o navio ficou no atracadouro até ser descarregado;
+    if (fila->id == 1) {
+        instantesf1 = instantesf1 + (unidadeTempo - aux->navio.unidTempo);
+        media1 = instantesf1 / quant1;
+        printf("Media de espera do atracadouro 1: %.2f\n", media1);
     }
+    if (fila->id == 2) {
+        instantesf2 = instantesf2 + (unidadeTempo - aux->navio.unidTempo);
+        media2 = instantesf2 / quant2;
+        printf("Media de espera do atracadouro 2: %.2f\n", media2);
+    }
+    if (fila->id == 3) {
+        instantesf3 = instantesf3 + (unidadeTempo - aux->navio.unidTempo);
+        media3 = instantesf3 / quant3;
+        printf("Media de espera do atracadouro 3: %.2f\n", media3);
+    }
+    if (fila->id == 4) {
+        instantesf4 = instantesf4 + (unidadeTempo - aux->navio.unidTempo);
+        media4 = instantesf4 / quant4;
+        printf("Media de espera do atracadouro 4: %.2f\n", media4);
+    }
+    //Retira o navio atual após o descarregamento
+    retiraNavio(fila);
+
 }
 
 //Inserir navio no final da Fila do atracadouro
@@ -247,7 +262,7 @@ void insereNavio(Fila *fila, Navio *navio) {
 //Função de imprimir a Fila de navios atracados
 void imprimeFila(Fila *fila) {
     NO *aux = fila->inicio->proximo;
-    if(aux == NULL){
+    if (aux == NULL) {
         printf("Fila acima vazia!\n");
         return;
     }
@@ -321,17 +336,18 @@ void preencheNavio(Navio *navio) {
 
 int main() {
 
-    quantNavios = 0, instante1 = 0, instante2 = 0;
+    quantNavios = 0, instantesf1 = 0, instantesf2 = 0, instantesf3 = 0, instantesf4 = 0;
+    quant1=0,quant2=0,quant3=0,quant4=0;
 
     //Funções que iniciam as filas nas 4 áreas de atracamento
     Fila fila1;
-    criaFilaVazia(&fila1);
+    criaFilaVazia(&fila1, 1);
     Fila fila2;
-    criaFilaVazia(&fila2);
+    criaFilaVazia(&fila2, 2);
     Fila fila3;
-    criaFilaVazia(&fila3);
+    criaFilaVazia(&fila3, 3);
     Fila fila4;
-    criaFilaVazia(&fila4);
+    criaFilaVazia(&fila4, 4);
 
     //Área de descarregamento de 5x5 existem 5 pilhas com limite de 5 contêiners em cada
     //Funções que iniciam as pilhas da área de descarregamento
@@ -388,36 +404,40 @@ int main() {
     criaPilhaVazia(&navio.pilha4);
 
     do {
-            int quantChega = rand() % 4;
-            for (int i = 0; i < quantChega; i++) {
-                //Função que cria um navio e preenche com uma quantidade aleatória de conteiners em cada pilha;
-                quantNavios = quantNavios + 1;
-                navio.id = quantNavios;
-                navio.unidTempo = unidadeTempo;
-                navio.quantConteiners = 0;
-                preencheNavio(&navio);
+        int quantChega = rand() % 4;
+        for (int i = 0; i < quantChega; i++) {
+            //Função que cria um navio e preenche com uma quantidade aleatória de conteiners em cada pilha;
+            quantNavios = quantNavios + 1;
+            navio.id = quantNavios;
+            navio.unidTempo = unidadeTempo;
+            navio.quantConteiners = 0;
+            preencheNavio(&navio);
 
 
-            int random = 1 + (rand() % 3);
+            int random = 1 + (rand() % 4);
             switch (random) {
                 case 1:
                     printf("Chegou no atracadouro 1!\n");
                     insereNavio(&fila1, &navio);
+                    quant1++;
                     imprimeFila(&fila1);
                     break;
                 case 2:
                     printf("Chegou no atracadouro 2!\n");
                     insereNavio(&fila2, &navio);
+                    quant2++;
                     imprimeFila(&fila2);
                     break;
                 case 3:
                     printf("Chegou no atracadouro 3!\n");
                     insereNavio(&fila3, &navio);
+                    quant3++;
                     imprimeFila(&fila3);
                     break;
                 case 4:
                     printf("Chegou no atracadouro 4!\n");
                     insereNavio(&fila4, &navio);
+                    quant4++;
                     imprimeFila(&fila4);
                     break;
                 default:
@@ -428,45 +448,45 @@ int main() {
 
 
         retiraConteinerNavio(&fila1, &pilha1Atrac1, &pilha2Atrac1, &pilha3Atrac1, &pilha4Atrac1, &pilha5Atrac1);
-        printf("\nStatus travessas do Atracadouro 1:\n");
+        printf("Status travessas do Atracadouro 1:\n");
         printf("%d \t", pilha1Atrac1.tam);
         printf("%d \t", pilha2Atrac1.tam);
         printf("%d \t", pilha3Atrac1.tam);
         printf("%d \t", pilha4Atrac1.tam);
-        printf("%d \t\n\n", pilha5Atrac1.tam);
+        printf("%d \n", pilha5Atrac1.tam);
         if (fila1.tam == 0) {
             imprimeFila(&fila1);
         }
 
         retiraConteinerNavio(&fila2, &pilha1Atrac2, &pilha2Atrac2, &pilha3Atrac2, &pilha4Atrac2, &pilha5Atrac2);
-        printf("\nStatus travessas do Atracadouro 2:\n");
+        printf("Status travessas do Atracadouro 2:\n");
         printf("%d \t", pilha1Atrac2.tam);
         printf("%d \t", pilha2Atrac2.tam);
         printf("%d \t", pilha3Atrac2.tam);
         printf("%d \t", pilha4Atrac2.tam);
-        printf("%d \t\n\n", pilha5Atrac2.tam);
+        printf("%d \n", pilha5Atrac2.tam);
         if (fila2.tam == 0) {
             imprimeFila(&fila2);
         }
 
         retiraConteinerNavio(&fila3, &pilha1Atrac3, &pilha2Atrac3, &pilha3Atrac3, &pilha4Atrac3, &pilha5Atrac3);
-        printf("\nStatus travessas do Atracadouro 3:\n");
+        printf("Status travessas do Atracadouro 3:\n");
         printf("%d \t", pilha1Atrac3.tam);
         printf("%d \t", pilha2Atrac3.tam);
         printf("%d \t", pilha3Atrac3.tam);
         printf("%d \t", pilha4Atrac3.tam);
-        printf("%d \t\n\n", pilha5Atrac3.tam);
+        printf("%d \n", pilha5Atrac3.tam);
         if (fila3.tam == 0) {
             imprimeFila(&fila3);
         }
 
         retiraConteinerNavio(&fila4, &pilha1Atrac4, &pilha2Atrac4, &pilha3Atrac4, &pilha4Atrac4, &pilha5Atrac4);
-        printf("\nStatus travessas do Atracadouro 4:\n");
+        printf("Status travessas do Atracadouro 4:\n");
         printf("%d \t", pilha1Atrac4.tam);
         printf("%d \t", pilha2Atrac4.tam);
         printf("%d \t", pilha3Atrac4.tam);
         printf("%d \t", pilha4Atrac4.tam);
-        printf("%d \t\n\n", pilha5Atrac4.tam);
+        printf("%d \n", pilha5Atrac4.tam);
         if (fila4.tam == 0) {
             imprimeFila(&fila4);
         }
@@ -474,7 +494,11 @@ int main() {
 
 
     printf("Contador: %d\n", unidadeTempo);
-    printf("Travessa transportadas: %d", transpTravessa);
+    printf("Travessa transportadas: %d\n", transpTravessa);
+    printf("Media final do atracadouro 1: %.2f\n", media1);
+    printf("Media final do atracadouro 2: %.2f\n", media2);
+    printf("Media final do atracadouro 3: %.2f\n", media3);
+    printf("Media final do atracadouro 4: %.2f", media4);
 
     return 0;
 }

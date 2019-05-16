@@ -1,8 +1,8 @@
-# Install script for directory: C:/Users/l_oli/Desktop/TrabalhoEDI
+# Install script for directory: C:/Users/l_oli/Desktop/teste
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/TrabalhoEDI")
+  set(CMAKE_INSTALL_PREFIX "C:/Program Files (x86)/teste")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "C:/Users/l_oli/Desktop/TrabalhoEDI/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "C:/Users/l_oli/Desktop/teste/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
