@@ -3,7 +3,6 @@
 #include <time.h>
 
 int unidadeTempo, transpTravessa;
-int maxNavio = 300;
 int quantNavios, quantNaviosDentro;
 int instantesf1, instantesf2, instantesf3, instantesf4;
 int quant1, quant2, quant3, quant4;
@@ -27,8 +26,14 @@ typedef struct NO2 {
 
 typedef struct {
     int tam;
+    int id;
+    int status;
     NO2 *inicio;
 } Pilha;
+
+typedef struct Carro {
+    int instante;
+} Carro;
 
 typedef struct Navio {
     int id;
@@ -48,6 +53,7 @@ typedef struct NO {
 typedef struct {
     int id;
     int tam;
+    Carro carro;
     NO *inicio;
     NO *fim;
 } Fila;
@@ -55,10 +61,12 @@ typedef struct {
 // ############# FUNÇÕES ##################
 
 //Criação de pilha com cabeça
-void criaPilhaVazia(Pilha *pilha) {
+void criaPilhaVazia(Pilha *pilha, int x) {
     pilha->inicio = malloc(sizeof(NO2));
     pilha->tam = 0;
     pilha->inicio->proximo = NULL;
+    pilha->status = 0;
+    pilha->id = x;
 }
 
 //Criação de fila com cabeça
@@ -78,166 +86,293 @@ int retiraNavio(Fila *fila) {
         fila->fim = aux;
         fila->fim->proximo = NULL;
         fila->tam = 0;
-        unidadeTempo++;
+        return 0;
     } else {
         NO *aux = fila->inicio->proximo;
         NO *aux2 = aux->proximo;
         fila->inicio->proximo = aux2;
         fila->tam = fila->tam - 1;
-        unidadeTempo++;
         free(aux);
+        return 0;
     }
-    quantNaviosDentro = quantNaviosDentro - 1;
 }
 
-//Veículo retira travessas para armazem após atingirem o limite máximo;
-int retiraTravessas(Pilha *pilha1, Pilha *pilha2, Pilha *pilha3, Pilha *pilha4, Pilha *pilha5) {
-    if (pilha1->tam == 5) {
-        NO2 *aux = pilha1->inicio;
-        pilha1->inicio->proximo = NULL;
-        pilha1->inicio = aux;
-        pilha1->tam = 0;
-        unidadeTempo++;
-        unidadeTempo++;
-        transpTravessa = transpTravessa + 1;
-        printf("Travessa 1 transportada para o armazem!\n");
-    }
-    if (pilha2->tam == 5) {
-        NO2 *aux = pilha2->inicio;
-        pilha2->inicio->proximo = NULL;
-        pilha2->inicio = aux;
-        pilha2->tam = 0;
-        unidadeTempo++;
-        unidadeTempo++;
-        transpTravessa = transpTravessa + 1;
-        printf("Travessa 2 transportada para o armazem!\n");
-    }
-    if (pilha3->tam == 5) {
-        NO2 *aux = pilha3->inicio;
-        pilha3->inicio->proximo = NULL;
-        pilha3->inicio = aux;
-        pilha3->tam = 0;
-        unidadeTempo++;
-        unidadeTempo++;
-        transpTravessa = transpTravessa + 1;
-        printf("Travessa 3 transportada para o armazem!\n");
-    }
-    if (pilha4->tam == 5) {
-        NO2 *aux = pilha4->inicio;
-        pilha4->inicio->proximo = NULL;
-        pilha4->inicio = aux;
-        pilha4->tam = 0;
-        unidadeTempo++;
-        unidadeTempo++;
-        transpTravessa = transpTravessa + 1;
-        printf("Travessa 4 transportada para o armazem!\n");
-    }
-    if (pilha5->tam == 5) {
-        NO2 *aux = pilha5->inicio;
-        pilha5->inicio->proximo = NULL;
-        pilha5->inicio = aux;
-        pilha5->tam = 0;
-        unidadeTempo++;
-        unidadeTempo++;
-        transpTravessa = transpTravessa + 1;
-        printf("Travessa 5 transportada para o armazem!\n");
-    }
+//Veículo retira travessa para armazem após atingir o limite máximo;
+int retiraTravessas(Pilha *pilha, int x, Fila *fila) {
+    NO2 *aux = pilha->inicio;
+    pilha->inicio->proximo = NULL;
+    pilha->inicio = aux;
+    pilha->tam = 0;
+    transpTravessa = transpTravessa + 1;
+    pilha->status = 2;
+    fila->carro.instante = 2;
+    printf("Travessa %d transportada para o armazem!\n", x);
+    printf("Tempo: %d\n", unidadeTempo);
 }
 
 //Retira 1 a 1 os conteiners do navio
 int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3, Pilha *pilha4, Pilha *pilha5) {
     NO *aux = fila->inicio->proximo;
 
-    if (fila->tam > 0) {
+    if (aux == NULL) {
+        printf("Atracadouro %d esta vazio!\n", fila->id);
+        return 1;
+    } else {
         printf("Descarregando no atracadouro %d...\n", fila->id);
     }
-    else{
-        printf("Fila %d vazia!\n", fila->id);
-        return 1;
-    }
 
-    while (aux->navio.quantConteiners > 0) {
-        int cabem1 = 5 - pilha1->tam;
-        if (cabem1 > 0 && aux->navio.quantConteiners > 0) {
-            NO2 *novo = malloc(sizeof(NO2));
-            pilha1->inicio->proximo = novo;
+    int cabem1 = 5 - pilha1->tam;
+    if (cabem1 == 0) {
+        retiraTravessas(pilha1, 1, fila);
+        if(pilha1->status == 2){
+            pilha1->status = pilha1->status - 1;
+        } else{
+            pilha1->status = 0;
+        }
+        fila->carro.instante = fila->carro.instante - 1;
+    } else if (cabem1 > 0 && aux->navio.quantConteiners > 0) {
+        NO2 *novo = malloc(sizeof(NO2));
+        if (aux->navio.pilha1.tam > 0 && pilha1->status == 0) {
             NO2 *aux2 = pilha1->inicio->proximo;
+            pilha1->inicio = novo;
             novo->proximo = aux2;
             pilha1->tam = pilha1->tam + 1;
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
-            unidadeTempo++;
+            aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha1->inicio->proximo;
+            pilha1->inicio = novo;
+            novo->proximo = aux2;
+            pilha1->tam = pilha1->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha1->inicio->proximo;
+            pilha1->inicio = novo;
+            novo->proximo = aux2;
+            pilha1->tam = pilha1->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha1->inicio->proximo;
+            pilha1->inicio = novo;
+            novo->proximo = aux2;
+            pilha1->tam = pilha1->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha4.tam = aux->navio.pilha4.tam - 1;
+            return 0;
         }
-        int cabem2 = 5 - pilha2->tam;
-        if (cabem2 > 0 && aux->navio.quantConteiners > 0) {
-            NO2 *novo = malloc(sizeof(NO2));
-            pilha2->inicio->proximo = novo;
+    }
+    int cabem2 = 5 - pilha2->tam;
+    if (cabem2 == 0) {
+        retiraTravessas(pilha2, 2, fila);
+        if(pilha1->status == 2){
+            pilha1->status = pilha1->status - 1;
+        } else{
+            pilha1->status = 0;
+        }
+        fila->carro.instante = fila->carro.instante - 1;
+    } else if (cabem2 > 0 && aux->navio.quantConteiners > 0) {
+        NO2 *novo = malloc(sizeof(NO2));
+        if (aux->navio.pilha1.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha2->inicio->proximo;
+            pilha2->inicio = novo;
             novo->proximo = aux2;
             pilha2->tam = pilha2->tam + 1;
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
-            unidadeTempo++;
+            aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha2->inicio->proximo;
+            pilha2->inicio = novo;
+            novo->proximo = aux2;
+            pilha2->tam = pilha2->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha2->inicio->proximo;
+            pilha2->inicio = novo;
+            novo->proximo = aux2;
+            pilha2->tam = pilha2->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha2->inicio->proximo;
+            pilha2->inicio = novo;
+            novo->proximo = aux2;
+            pilha2->tam = pilha2->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha4.tam = aux->navio.pilha4.tam - 1;
+            return 0;
         }
-        int cabem3 = 5 - pilha3->tam;
-        if (cabem3 > 0 && aux->navio.quantConteiners > 0) {
-            NO2 *novo = malloc(sizeof(NO2));
-            pilha3->inicio->proximo = novo;
+    }
+    int cabem3 = 5 - pilha3->tam;
+    if (cabem3 == 0) {
+        retiraTravessas(pilha3, 3, fila);
+        if(pilha1->status == 2){
+            pilha1->status = pilha1->status - 1;
+        } else{
+            pilha1->status = 0;
+        }
+        fila->carro.instante = fila->carro.instante - 1;
+    } else if (cabem3 > 0 && aux->navio.quantConteiners > 0) {
+        NO2 *novo = malloc(sizeof(NO2));
+        if (aux->navio.pilha1.tam > 0 && pilha3->status == 0) {
             NO2 *aux2 = pilha3->inicio->proximo;
+            pilha3->inicio = novo;
             novo->proximo = aux2;
             pilha3->tam = pilha3->tam + 1;
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
-            unidadeTempo++;
+            aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha3->inicio->proximo;
+            pilha3->inicio = novo;
+            novo->proximo = aux2;
+            pilha3->tam = pilha3->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha3->inicio->proximo;
+            pilha3->inicio = novo;
+            novo->proximo = aux2;
+            pilha3->tam = pilha3->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha3->inicio->proximo;
+            pilha3->inicio = novo;
+            novo->proximo = aux2;
+            pilha3->tam = pilha3->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha4.tam = aux->navio.pilha4.tam - 1;
+            return 0;
         }
-        int cabem4 = 5 - pilha4->tam;
-        if (cabem4 > 0 && aux->navio.quantConteiners > 0) {
-            NO2 *novo = malloc(sizeof(NO2));
-            pilha4->inicio->proximo = novo;
+    }
+    int cabem4 = 5 - pilha4->tam;
+    if (cabem4 == 0) {
+        retiraTravessas(pilha4, 4, fila);
+        if(pilha1->status == 2){
+            pilha1->status = pilha1->status - 1;
+        } else{
+            pilha1->status = 0;
+        }
+        fila->carro.instante = fila->carro.instante - 1;
+    } else if (cabem4 > 0 && aux->navio.quantConteiners > 0) {
+        NO2 *novo = malloc(sizeof(NO2));
+        if (aux->navio.pilha1.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha4->inicio->proximo;
+            pilha4->inicio = novo;
             novo->proximo = aux2;
             pilha4->tam = pilha4->tam + 1;
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
-            unidadeTempo++;
+            aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha4->inicio->proximo;
+            pilha4->inicio = novo;
+            novo->proximo = aux2;
+            pilha4->tam = pilha4->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha4->inicio->proximo;
+            pilha4->inicio = novo;
+            novo->proximo = aux2;
+            pilha4->tam = pilha4->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha4->inicio->proximo;
+            pilha4->inicio = novo;
+            novo->proximo = aux2;
+            pilha4->tam = pilha4->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha4.tam = aux->navio.pilha4.tam - 1;
+            return 0;
         }
-        int cabem5 = 5 - pilha5->tam;
-        if (cabem5 > 0 && aux->navio.quantConteiners > 0) {
-            NO2 *novo = malloc(sizeof(NO2));
-            pilha5->inicio->proximo = novo;
+    }
+    int cabem5 = 5 - pilha5->tam;
+    if (cabem5 == 0) {
+        retiraTravessas(pilha5, 5, fila);
+        if(pilha1->status == 2){
+            pilha1->status = pilha1->status - 1;
+        } else{
+            pilha1->status = 0;
+        }
+        fila->carro.instante = fila->carro.instante - 1;
+    } else if (cabem5 > 0 && aux->navio.quantConteiners > 0) {
+        NO2 *novo = malloc(sizeof(NO2));
+        if (aux->navio.pilha1.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha5->inicio->proximo;
+            pilha5->inicio = novo;
             novo->proximo = aux2;
             pilha5->tam = pilha5->tam + 1;
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
-            unidadeTempo++;
-        }
-
-        int lotado = 0;
-        lotado = pilha1->tam + pilha2->tam + pilha3->tam + pilha4->tam + pilha5->tam;
-        if (lotado == 25) {
-            retiraTravessas(pilha1, pilha2, pilha3, pilha4, pilha5);
+            aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha5->inicio->proximo;
+            pilha5->inicio = novo;
+            novo->proximo = aux2;
+            pilha5->tam = pilha5->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha5->inicio->proximo;
+            pilha5->inicio = novo;
+            novo->proximo = aux2;
+            pilha5->tam = pilha5->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
+            return 0;
+        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+            NO2 *aux2 = pilha5->inicio->proximo;
+            pilha5->inicio = novo;
+            novo->proximo = aux2;
+            pilha5->tam = pilha5->tam + 1;
+            aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
+            aux->navio.pilha4.tam = aux->navio.pilha4.tam - 1;
+            return 0;
         }
     }
+
     //Calcula o tempo que o navio ficou no atracadouro até ser descarregado;
-    if (fila->id == 1) {
+    if (fila->id == 1 && aux->navio.quantConteiners == 0) {
         instantesf1 = instantesf1 + (unidadeTempo - aux->navio.unidTempo);
         media1 = instantesf1 / quant1;
         printf("Media de espera do atracadouro 1: %.2f\n", media1);
     }
-    if (fila->id == 2) {
+    if (fila->id == 2 && aux->navio.quantConteiners == 0) {
         instantesf2 = instantesf2 + (unidadeTempo - aux->navio.unidTempo);
         media2 = instantesf2 / quant2;
         printf("Media de espera do atracadouro 2: %.2f\n", media2);
     }
-    if (fila->id == 3) {
+    if (fila->id == 3 && aux->navio.quantConteiners == 0) {
         instantesf3 = instantesf3 + (unidadeTempo - aux->navio.unidTempo);
         media3 = instantesf3 / quant3;
         printf("Media de espera do atracadouro 3: %.2f\n", media3);
     }
-    if (fila->id == 4) {
+    if (fila->id == 4 && aux->navio.quantConteiners == 0) {
         instantesf4 = instantesf4 + (unidadeTempo - aux->navio.unidTempo);
         media4 = instantesf4 / quant4;
         printf("Media de espera do atracadouro 4: %.2f\n", media4);
     }
-    //Retira o navio atual após o descarregamento
-    retiraNavio(fila);
 
+    //Retira o navio atual após o descarregamento
+    if(aux->navio.quantConteiners == 0){
+        retiraNavio(fila);
+    }
 }
 
 //Inserir navio no final da Fila do atracadouro
@@ -263,10 +398,10 @@ void insereNavio(Fila *fila, Navio *navio) {
 void imprimeFila(Fila *fila) {
     NO *aux = fila->inicio->proximo;
     if (aux == NULL) {
-        printf("Fila acima vazia!\n");
+        printf("\nFila do atracadouro %d esta vazia!\n", fila->id);
         return;
     }
-    printf("Fila de navios atual: \n");
+    printf("\nFila de navios atual do atracadouro %d: \n", fila->id);
     while (aux != NULL) {
         printf("Navio: %d\n", aux->navio.id);
         printf("Unidade Tempo: %d\n", aux->navio.unidTempo);
@@ -337,7 +472,8 @@ void preencheNavio(Navio *navio) {
 int main() {
 
     quantNavios = 0, instantesf1 = 0, instantesf2 = 0, instantesf3 = 0, instantesf4 = 0;
-    quant1=0,quant2=0,quant3=0,quant4=0;
+    quant1 = 0, quant2 = 0, quant3 = 0, quant4 = 0;
+    int sair = 0;
 
     //Funções que iniciam as filas nas 4 áreas de atracamento
     Fila fila1;
@@ -354,54 +490,54 @@ int main() {
 
     //5 travessas do atracadouro 1
     Pilha pilha1Atrac1;
-    criaPilhaVazia(&pilha1Atrac1);
+    criaPilhaVazia(&pilha1Atrac1, 11);
     Pilha pilha2Atrac1;
-    criaPilhaVazia(&pilha2Atrac1);
+    criaPilhaVazia(&pilha2Atrac1, 21);
     Pilha pilha3Atrac1;
-    criaPilhaVazia(&pilha3Atrac1);
+    criaPilhaVazia(&pilha3Atrac1, 31);
     Pilha pilha4Atrac1;
-    criaPilhaVazia(&pilha4Atrac1);
+    criaPilhaVazia(&pilha4Atrac1, 41);
     Pilha pilha5Atrac1;
-    criaPilhaVazia(&pilha5Atrac1);
+    criaPilhaVazia(&pilha5Atrac1, 51);
     //5 travessas do atracadouro 2
     Pilha pilha1Atrac2;
-    criaPilhaVazia(&pilha1Atrac2);
+    criaPilhaVazia(&pilha1Atrac2, 12);
     Pilha pilha2Atrac2;
-    criaPilhaVazia(&pilha2Atrac2);
+    criaPilhaVazia(&pilha2Atrac2, 22);
     Pilha pilha3Atrac2;
-    criaPilhaVazia(&pilha3Atrac2);
+    criaPilhaVazia(&pilha3Atrac2, 32);
     Pilha pilha4Atrac2;
-    criaPilhaVazia(&pilha4Atrac2);
+    criaPilhaVazia(&pilha4Atrac2, 42);
     Pilha pilha5Atrac2;
-    criaPilhaVazia(&pilha5Atrac2);
+    criaPilhaVazia(&pilha5Atrac2, 52);
     //5 travessas do atracadouro 3
     Pilha pilha1Atrac3;
-    criaPilhaVazia(&pilha1Atrac3);
+    criaPilhaVazia(&pilha1Atrac3, 13);
     Pilha pilha2Atrac3;
-    criaPilhaVazia(&pilha2Atrac3);
+    criaPilhaVazia(&pilha2Atrac3, 23);
     Pilha pilha3Atrac3;
-    criaPilhaVazia(&pilha3Atrac3);
+    criaPilhaVazia(&pilha3Atrac3, 33);
     Pilha pilha4Atrac3;
-    criaPilhaVazia(&pilha4Atrac3);
+    criaPilhaVazia(&pilha4Atrac3, 43);
     Pilha pilha5Atrac3;
-    criaPilhaVazia(&pilha5Atrac3);
+    criaPilhaVazia(&pilha5Atrac3, 53);
     //5 travessas do atracadouro 4
     Pilha pilha1Atrac4;
-    criaPilhaVazia(&pilha1Atrac4);
+    criaPilhaVazia(&pilha1Atrac4, 14);
     Pilha pilha2Atrac4;
-    criaPilhaVazia(&pilha2Atrac4);
+    criaPilhaVazia(&pilha2Atrac4, 24);
     Pilha pilha3Atrac4;
-    criaPilhaVazia(&pilha3Atrac4);
+    criaPilhaVazia(&pilha3Atrac4, 34);
     Pilha pilha4Atrac4;
-    criaPilhaVazia(&pilha4Atrac4);
+    criaPilhaVazia(&pilha4Atrac4, 44);
     Pilha pilha5Atrac4;
-    criaPilhaVazia(&pilha5Atrac4);
+    criaPilhaVazia(&pilha5Atrac4, 54);
 
     Navio navio;
-    criaPilhaVazia(&navio.pilha1);
-    criaPilhaVazia(&navio.pilha2);
-    criaPilhaVazia(&navio.pilha3);
-    criaPilhaVazia(&navio.pilha4);
+    criaPilhaVazia(&navio.pilha1, 1);
+    criaPilhaVazia(&navio.pilha2, 2);
+    criaPilhaVazia(&navio.pilha3, 3);
+    criaPilhaVazia(&navio.pilha4, 4);
 
     do {
         int quantChega = rand() % 4;
@@ -412,7 +548,6 @@ int main() {
             navio.unidTempo = unidadeTempo;
             navio.quantConteiners = 0;
             preencheNavio(&navio);
-
 
             int random = 1 + (rand() % 4);
             switch (random) {
@@ -445,7 +580,6 @@ int main() {
                     break;
             }
         }
-
 
         retiraConteinerNavio(&fila1, &pilha1Atrac1, &pilha2Atrac1, &pilha3Atrac1, &pilha4Atrac1, &pilha5Atrac1);
         printf("Status travessas do Atracadouro 1:\n");
@@ -490,15 +624,13 @@ int main() {
         if (fila4.tam == 0) {
             imprimeFila(&fila4);
         }
-    } while (quantNavios < maxNavio);
 
+        printf("Digite 1 para sair: ");
+        scanf("%d", &sair);
+        unidadeTempo++;
+    } while (sair != 1);
 
-    printf("Contador: %d\n", unidadeTempo);
     printf("Travessa transportadas: %d\n", transpTravessa);
-    printf("Media final do atracadouro 1: %.2f\n", media1);
-    printf("Media final do atracadouro 2: %.2f\n", media2);
-    printf("Media final do atracadouro 3: %.2f\n", media3);
-    printf("Media final do atracadouro 4: %.2f", media4);
 
     return 0;
 }
