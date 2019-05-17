@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <time.h>
 
-int unidadeTempo, transpTravessa;
-int quantNavios, quantNaviosDentro;
-int instantesf1, instantesf2, instantesf3, instantesf4;
-int quant1, quant2, quant3, quant4;
+int quantNavios, instantesf1, instantesf2, instantesf3, instantesf4, quant1, quant2, quant3, quant4, unidadeTempo, transpTravessa;
 float media1, media2, media3, media4;
 
-//Data: 30/04/2019
+//Data: 17/05/2019
 //Nome: Lucas Oliveira Silva
 //Disciplica: Estrutura de Dados I
 
@@ -108,6 +105,7 @@ int retiraTravessas(Pilha *pilha, int x, Fila *fila) {
     fila->carro.instante = 2;
     printf("Travessa %d transportada para o armazem!\n", x);
     printf("Tempo: %d\n", unidadeTempo);
+    return 0;
 }
 
 //Retira 1 a 1 os conteiners do navio
@@ -140,7 +138,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
             return 0;
-        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha2.tam > 0 && pilha1->status == 0) {
             NO2 *aux2 = pilha1->inicio->proximo;
             pilha1->inicio = novo;
             novo->proximo = aux2;
@@ -148,7 +146,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
             return 0;
-        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha3.tam > 0 && pilha1->status == 0) {
             NO2 *aux2 = pilha1->inicio->proximo;
             pilha1->inicio = novo;
             novo->proximo = aux2;
@@ -156,7 +154,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
             return 0;
-        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha4.tam > 0 && pilha1->status == 0) {
             NO2 *aux2 = pilha1->inicio->proximo;
             pilha1->inicio = novo;
             novo->proximo = aux2;
@@ -185,7 +183,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
             return 0;
-        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha2.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha2->inicio->proximo;
             pilha2->inicio = novo;
             novo->proximo = aux2;
@@ -193,7 +191,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
             return 0;
-        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha3.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha2->inicio->proximo;
             pilha2->inicio = novo;
             novo->proximo = aux2;
@@ -201,7 +199,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
             return 0;
-        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha4.tam > 0 && pilha2->status == 0) {
             NO2 *aux2 = pilha2->inicio->proximo;
             pilha2->inicio = novo;
             novo->proximo = aux2;
@@ -230,7 +228,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
             return 0;
-        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha2.tam > 0 && pilha3->status == 0) {
             NO2 *aux2 = pilha3->inicio->proximo;
             pilha3->inicio = novo;
             novo->proximo = aux2;
@@ -238,7 +236,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
             return 0;
-        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha3.tam > 0 && pilha3->status == 0) {
             NO2 *aux2 = pilha3->inicio->proximo;
             pilha3->inicio = novo;
             novo->proximo = aux2;
@@ -246,7 +244,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
             return 0;
-        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha4.tam > 0 && pilha3->status == 0) {
             NO2 *aux2 = pilha3->inicio->proximo;
             pilha3->inicio = novo;
             novo->proximo = aux2;
@@ -267,7 +265,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
         fila->carro.instante = fila->carro.instante - 1;
     } else if (cabem4 > 0 && aux->navio.quantConteiners > 0) {
         NO2 *novo = malloc(sizeof(NO2));
-        if (aux->navio.pilha1.tam > 0 && pilha2->status == 0) {
+        if (aux->navio.pilha1.tam > 0 && pilha4->status == 0) {
             NO2 *aux2 = pilha4->inicio->proximo;
             pilha4->inicio = novo;
             novo->proximo = aux2;
@@ -275,7 +273,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
             return 0;
-        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha2.tam > 0 && pilha4->status == 0) {
             NO2 *aux2 = pilha4->inicio->proximo;
             pilha4->inicio = novo;
             novo->proximo = aux2;
@@ -283,7 +281,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
             return 0;
-        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha3.tam > 0 && pilha4->status == 0) {
             NO2 *aux2 = pilha4->inicio->proximo;
             pilha4->inicio = novo;
             novo->proximo = aux2;
@@ -291,7 +289,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
             return 0;
-        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha4.tam > 0 && pilha4->status == 0) {
             NO2 *aux2 = pilha4->inicio->proximo;
             pilha4->inicio = novo;
             novo->proximo = aux2;
@@ -302,7 +300,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
         }
     }
     int cabem5 = 5 - pilha5->tam;
-    if (cabem5 == 0) {
+    if (cabem5 == 0 && fila->carro.instante == 0) {
         retiraTravessas(pilha5, 5, fila);
         if(pilha1->status == 2){
             pilha1->status = pilha1->status - 1;
@@ -320,7 +318,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha1.tam = aux->navio.pilha1.tam - 1;
             return 0;
-        } else if (aux->navio.pilha2.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha2.tam > 0 && pilha5->status == 0) {
             NO2 *aux2 = pilha5->inicio->proximo;
             pilha5->inicio = novo;
             novo->proximo = aux2;
@@ -328,7 +326,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha2.tam = aux->navio.pilha2.tam - 1;
             return 0;
-        } else if (aux->navio.pilha3.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha3.tam > 0 && pilha5->status == 0) {
             NO2 *aux2 = pilha5->inicio->proximo;
             pilha5->inicio = novo;
             novo->proximo = aux2;
@@ -336,7 +334,7 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
             aux->navio.quantConteiners = aux->navio.quantConteiners - 1;
             aux->navio.pilha3.tam = aux->navio.pilha3.tam - 1;
             return 0;
-        } else if (aux->navio.pilha4.tam > 0 && fila->carro.instante == 0) {
+        } else if (aux->navio.pilha4.tam > 0 && pilha5->status == 0) {
             NO2 *aux2 = pilha5->inicio->proximo;
             pilha5->inicio = novo;
             novo->proximo = aux2;
@@ -379,7 +377,6 @@ int retiraConteinerNavio(Fila *fila, Pilha *pilha1, Pilha *pilha2, Pilha *pilha3
 void insereNavio(Fila *fila, Navio *navio) {
     NO *aux = malloc(sizeof(NO));
     aux->navio = *navio;
-    quantNaviosDentro = quantNaviosDentro + 1;
 
     if (fila->tam == 0) {
         fila->tam = fila->tam + 1;
@@ -540,6 +537,7 @@ int main() {
     criaPilhaVazia(&navio.pilha4, 4);
 
     do {
+        //Gerando de 0 a 3 a quantidade de navios que chegam nessa iteração, no porto;
         int quantChega = rand() % 4;
         for (int i = 0; i < quantChega; i++) {
             //Função que cria um navio e preenche com uma quantidade aleatória de conteiners em cada pilha;
@@ -549,6 +547,7 @@ int main() {
             navio.quantConteiners = 0;
             preencheNavio(&navio);
 
+            //Gerando de forma aleatória, onde os navios que chegaram, deverão ser inseridos;
             int random = 1 + (rand() % 4);
             switch (random) {
                 case 1:
@@ -580,6 +579,8 @@ int main() {
                     break;
             }
         }
+
+        //Grua dos 4 atracadouros em funcionamento a cada iteração;
 
         retiraConteinerNavio(&fila1, &pilha1Atrac1, &pilha2Atrac1, &pilha3Atrac1, &pilha4Atrac1, &pilha5Atrac1);
         printf("Status travessas do Atracadouro 1:\n");
@@ -625,12 +626,12 @@ int main() {
             imprimeFila(&fila4);
         }
 
-        printf("Digite 1 para sair: ");
+        printf("Digite 1 para sair:");
         scanf("%d", &sair);
         unidadeTempo++;
     } while (sair != 1);
 
-    printf("Travessa transportadas: %d\n", transpTravessa);
+    printf("Travessas transportadas: %d\n", transpTravessa);
 
     return 0;
 }
